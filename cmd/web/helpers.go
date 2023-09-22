@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -49,8 +50,10 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 
 func (app *application) newTemplateData(req *http.Request) *templateData {
 	return &templateData{
-		CurrentYear: time.Now().Year(),
-		Flash:       app.sessionManager.PopString(req.Context(), "flash"),
+		CurrentYear:     time.Now().Year(),
+		Flash:           app.sessionManager.PopString(req.Context(), "flash"),
+		IsAuthenticated: app.isAuthenticated(req),
+		CSRFToken:       nosurf.Token(req),
 	}
 }
 
@@ -72,4 +75,8 @@ func (app *application) decodePostForm(req *http.Request, dst any) error {
 	}
 
 	return nil
+}
+
+func (app *application) isAuthenticated(req *http.Request) bool {
+	return app.sessionManager.Exists(req.Context(), "authenticatedUserId")
 }
