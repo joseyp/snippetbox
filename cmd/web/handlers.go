@@ -209,7 +209,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
 	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
 	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
-	form.CheckField(validator.PermittedInt(form.Expires, 1, 7, 365), "expires", "Rthis filed must equal 1, 7, or 365")
+	form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires", "Rthis filed must equal 1, 7, or 365")
 
 	if !form.Valid() {
 		data := app.newTemplateData(req)
@@ -226,4 +226,8 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 	app.sessionManager.Put(req.Context(), "flash", "Snippet successfully created!")
 
 	http.Redirect(w, req, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+}
+
+func ping(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("OK"))
 }
